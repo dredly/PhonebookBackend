@@ -33,12 +33,18 @@ app.get('/api/persons', (req, res) => {
 
 app.get('/api/persons/:id', (req, res) => {
     const id = req.params.id;
-    const person = persons.find(n => n.id === parseInt(id));
+    const person = persons.find(p => p.id === parseInt(id));
     if (person) {
         res.json(person);
     } else {
         res.status(404).end();
     }
+});
+
+app.delete('/api/persons/:id', (req, res) => {
+    const id = req.params.id;
+    persons = persons.filter(p => p.id !== parseInt(id));
+    res.status(204).end();
 });
 
 app.get('/info', (req, res) => {
