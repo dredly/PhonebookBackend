@@ -36,6 +36,16 @@ app.get('/api/persons', (req, res) => {
 });
 
 app.post('/api/persons', (req, res) => {
+    if (!(req.body.name && req.body.number)) {
+        return res.status(400).json({
+            error: 'Person must have name and number'
+        });
+    }
+    if (persons.map(p => p.name).includes(req.body.name)) {
+        return res.status(400).json({
+            error: 'Name must be unique'
+        });
+    }
     const newPerson = req.body;
     newPerson.id = generateID();
     persons = persons.concat(newPerson);
