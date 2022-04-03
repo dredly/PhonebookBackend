@@ -27,9 +27,20 @@ let persons = [
     }
 ];
 
+const generateID = () => {
+    return Math.floor(Math.random() * 10000);
+}
+
 app.get('/api/persons', (req, res) => {
     res.json(persons);
 });
+
+app.post('/api/persons', (req, res) => {
+    const newPerson = req.body;
+    newPerson.id = generateID();
+    persons = persons.concat(newPerson);
+    res.json(newPerson);
+})
 
 app.get('/api/persons/:id', (req, res) => {
     const id = req.params.id;
