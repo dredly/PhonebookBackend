@@ -1,12 +1,28 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const express = require('express');
+const mongoose = require('mongoose');
 const morgan = require('morgan');
 const cors = require('cors');
+const Person = require('./models/person');
 
 const app = express();
 
 morgan.token('body', (req, res) => {
     return req.body ? JSON.stringify(req.body) : '';
 });
+
+// Database connection
+const mongoURI = process.env.MONGODB_URI;
+mongoose.connect(mongoURI)
+    .then(result => {
+        console.log('Connected to mongo');
+    })
+    .catch(err => {
+        console.log('Error connecting to mongo', err.message);
+    });
 
 app.use(express.json());
 app.use(cors());
@@ -42,7 +58,9 @@ const generateID = () => {
 }
 
 app.get('/api/persons', (req, res) => {
-    res.json(persons);
+    Person.find({}).then(persons => {
+        res.json(persons);
+    })
 });
 
 app.post('/api/persons', (req, res) => {
@@ -84,7 +102,7 @@ app.get('/info', (req, res) => {
     <p>${datetime.toString()}</p>`);
 })
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
