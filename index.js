@@ -10,6 +10,7 @@ const Person = require('./models/person');
 
 const app = express();
 
+//Custom logging stuff
 morgan.token('body', (req, res) => {
     return req.body ? JSON.stringify(req.body) : '';
 });
