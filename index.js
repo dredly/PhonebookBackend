@@ -30,29 +30,6 @@ app.use(express.static('build'));
 app.use(morgan('tiny'));
 app.use(morgan(':body'));
 
-let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-];
-
 app.get('/api/persons', (req, res) => {
     Person.find({}).then(persons => {
         res.json(persons);
@@ -73,14 +50,17 @@ app.post('/api/persons', (req, res) => {
     });
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     const id = req.params.id;
-    const person = persons.find(p => p.id === parseInt(id));
-    if (person) {
-        res.json(person);
-    } else {
-        res.status(404).end();
-    }
+    Person.findById(id)
+        .then(foundPerson => {
+            if (foundPerson) {
+                res.json(foundPerson);
+            } else {
+                res.status(404).end();
+            }
+        })
+        .catch(err => next(err));
 });
 
 app.put('/api/persons/:id', (req, res, next) => {
@@ -100,9 +80,10 @@ app.delete('/api/persons/:id', (req, res, next) => {
         .catch(err => next(err));
 });
 
-app.get('/info', (req, res) => {
+app.get('/info', async (req, res) => {
     const datetime = new Date(Date.now());
-    res.send(`<p>Phonebook has info for ${persons.length} people.</p>
+    const allPersons = await Person.find({});
+    res.send(`<p>Phonebook has info for ${allPersons.length} people.</p>
     <p>${datetime.toString()}</p>`);
 })
 
