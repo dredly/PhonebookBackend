@@ -83,12 +83,13 @@ app.get('/api/persons/:id', (req, res) => {
     }
 });
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     const id = req.params.id;
     Person.findByIdAndRemove(id)
         .then(result => {
             res.status(204).end();
         })
+        .catch(err => next(err));
 });
 
 app.get('/info', (req, res) => {
@@ -96,6 +97,17 @@ app.get('/info', (req, res) => {
     res.send(`<p>Phonebook has info for ${persons.length} people.</p>
     <p>${datetime.toString()}</p>`);
 })
+
+const errorHandler = (err, req, res, next) => {
+    console.error(err.message);
+
+    if (err.name === 'CastError') {
+        return res.status(400).send({ error: 'malformed object id' });
+    }
+    next(err);
+}
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
