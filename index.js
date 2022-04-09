@@ -53,10 +53,6 @@ let persons = [
     }
 ];
 
-const generateID = () => {
-    return Math.floor(Math.random() * 10000);
-}
-
 app.get('/api/persons', (req, res) => {
     Person.find({}).then(persons => {
         res.json(persons);
@@ -89,8 +85,10 @@ app.get('/api/persons/:id', (req, res) => {
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id;
-    persons = persons.filter(p => p.id !== parseInt(id));
-    res.status(204).end();
+    Person.findByIdAndRemove(id)
+        .then(result => {
+            res.status(204).end();
+        })
 });
 
 app.get('/info', (req, res) => {
