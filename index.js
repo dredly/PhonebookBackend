@@ -37,7 +37,7 @@ app.get('/api/persons', (req, res) => {
     })
 });
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body;
 
     if (!body.name || !body.number) {
@@ -46,9 +46,11 @@ app.post('/api/persons', (req, res) => {
         });
     }
     const person = new Person({ name: body.name, number: body.number });
-    person.save().then(savedPerson => {
-        res.json(savedPerson);
-    });
+    person.save()
+        .then(savedPerson => {
+            res.json(savedPerson);
+        })
+        .catch(err => next(err));
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
@@ -93,6 +95,8 @@ const errorHandler = (err, req, res, next) => {
 
     if (err.name === 'CastError') {
         return res.status(400).send({ error: 'malformed object id' });
+    } else if (err.name === 'ValidationError') {
+        return res.status(400).send({ error: err.message });
     }
     next(err);
 }
